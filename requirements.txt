@@ -92,8 +92,4 @@ wcwidth==0.2.13
 webdriver-manager==4.0.2
 websocket-client==1.8.0
 wsproto==1.2.0
-<<<<<<< HEAD
 yarl==1.20.0
-=======
-yarl==1.20.0
->>>>>>> a64d90ef26c5cd9232712e027219349e3891d06f
