@@ -30,4 +30,4 @@ jobs:
       - name: Run Docker container on Railway
         run: |
           export RAILWAY_TOKEN=${{ secrets.RAILWAY_TOKEN }}
-          railway up --service Scraper_Grad_Project
+          railway up --service Scraper_Grad_Project --detach
