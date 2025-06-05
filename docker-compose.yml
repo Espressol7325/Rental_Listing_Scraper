@@ -1,0 +1,13 @@
+version: '3.8'
+
+services:
+  fb-scraper:
+    build:
+      context: .  # Path to your project root
+    volumes:
+      - .:/app  # Mount current folder into container
+    working_dir: /app
+    environment:
+      - CHROME_BIN=/usr/bin/chromium
+      - CHROMEDRIVER_PATH=/usr/bin/chromedriver
+    command: python Scrapping_Web.py

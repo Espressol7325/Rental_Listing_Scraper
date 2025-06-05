@@ -23,7 +23,11 @@ GitPython==3.1.44
 h11==0.14.0
 idna==3.10
 ipykernel==6.29.5
+<<<<<<< HEAD
 ipython==9.0.2
+=======
+# ipython==9.0.2
+>>>>>>> a64d90ef26c5cd9232712e027219349e3891d06f
 ipython_pygments_lexers==1.1.1
 jedi==0.19.2
 Jinja2==3.1.6
@@ -57,7 +61,11 @@ PySocks==1.7.1
 python-dateutil==2.9.0.post0
 python-dotenv==1.1.0
 pytz==2025.2
+<<<<<<< HEAD
 pywin32==310
+=======
+# pywin32==310
+>>>>>>> a64d90ef26c5cd9232712e027219349e3891d06f
 pyzmq==26.3.0
 referencing==0.36.2
 requests==2.32.3
@@ -84,4 +92,8 @@ wcwidth==0.2.13
 webdriver-manager==4.0.2
 websocket-client==1.8.0
 wsproto==1.2.0
+<<<<<<< HEAD
 yarl==1.20.0
+=======
+yarl==1.20.0
+>>>>>>> a64d90ef26c5cd9232712e027219349e3891d06f

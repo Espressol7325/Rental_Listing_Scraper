@@ -1,0 +1,11 @@
+.env
+data_scraper.log
+Scraped_data.csv
+.gitignore
+Note.ipynb
+.tmp.driveupload
+KHTTTN
+venv
+facebook_scraper.log
+facebook_cookies.json
+modelAttempt.ipynb
