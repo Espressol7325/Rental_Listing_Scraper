@@ -649,6 +649,7 @@ class DateScraper:
             logger.error(f"Failed to send CSV via email: {str(e)}")
     def run(self):
         """Run the complete workflow: scrape data, save to CSV, and import to database."""
+        print("Scraper started...")
         self.print_header()
         if not self.patterns:
             print("Error: Could not load config.json.")
@@ -670,11 +671,15 @@ class DateScraper:
                 
                 # Import to database if configured
                 if self.config["import_to_db"]:
-                    self.import_to_database(posts)
-                    
-                self.print_summary(posts)
-            else:
-                print("No data collected.")
+                    try:
+                        self.import_to_database(posts)
+                    except Exception as e:
+                        import traceback
+                        print(f"[❌ DB IMPORT ERROR] {traceback.format_exc()}")
+                            
+                        self.print_summary(posts)
+                    else:
+                        print("No data collected.")
         finally:
             if self.driver:
                 self.driver.quit()
