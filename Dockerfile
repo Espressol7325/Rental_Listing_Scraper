@@ -28,5 +28,4 @@ COPY . .
 ENV CHROME_BIN=/usr/bin/chromium
 ENV CHROMEDRIVER_PATH=/usr/bin/chromedriver
 
-# ✅ This is the key: run your script
 CMD ["python", "-u", "Scrapping_Web.py"]
