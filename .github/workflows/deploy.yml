@@ -1,23 +1,28 @@
-name: Daily Scraper Deploy
+name: Run Scraper on Schedule
 
 on:
   schedule:
-    - cron: '0 */5 * * *' #every 5 hours
-  workflow_dispatch:     # Manual trigger
+    - cron: '0 */5 * * *'  # Every 5 hours
+  workflow_dispatch:       # Optional: manual trigger
 
 jobs:
   deploy:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout repo
+      - name: Checkout code
         uses: actions/checkout@v3
 
-      - name: Install Railway CLI
-        run: npm install -g railway
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18'
 
-      - name: Login Railway (using token)
+      - name: Install Railway CLI
+        run: npm install -g @railway/cli
+
+      - name: Run Railway login
         run: railway login --token ${{ secrets.RAILWAY_TOKEN }}
 
-      - name: Deploy to Railway
+      - name: Deploy or Run Container
         run: railway up
