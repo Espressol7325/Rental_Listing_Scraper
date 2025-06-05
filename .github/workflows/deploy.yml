@@ -27,4 +27,5 @@ jobs:
 
       - name: Run Docker container on Railway
         run: |
+          export RAILWAY_TOKEN=${{ secrets.RAILWAY_TOKEN }}
           railway run "docker compose run --rm fb-scraper"
