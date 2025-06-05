@@ -6,12 +6,14 @@ import random
 import hashlib
 import logging
 import os
+import smtplib
+from email.message import EmailMessage
+from dotenv import load_dotenv
 
 import mysql.connector
 from mysql.connector import Error
 from typing import List, Dict, Any, Optional, Tuple
 from datetime import datetime
-from dotenv import load_dotenv
 
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
@@ -598,7 +600,61 @@ class DateScraper:
             
         finally:
             self.close_db_connection()
+    def send_log_via_email(self, logfile: str, subject: str = "Scraper Log"):
+            """Send the log file to your email address."""
+            load_dotenv()
+            EMAIL_ADDRESS = os.getenv("EMAIL_ADDRESS")
+            EMAIL_PASSWORD = os.getenv("EMAIL_PASSWORD")
+            EMAIL_TO = os.getenv("EMAIL_TO", EMAIL_ADDRESS)
 
+            if not EMAIL_ADDRESS or not EMAIL_PASSWORD:
+                logger.error("Email credentials not set in .env file.")
+                return
+
+            msg = EmailMessage()
+            msg["Subject"] = subject
+            msg["From"] = EMAIL_ADDRESS
+            msg["To"] = EMAIL_TO
+            msg.set_content("Attached is the latest scraper log file.")
+
+            try:
+                with open(logfile, "rb") as f:
+                    msg.add_attachment(f.read(), maintype="text", subtype="plain", filename=logfile)
+                with smtplib.SMTP_SSL("smtp.gmail.com", 465) as smtp:
+                    smtp.login(EMAIL_ADDRESS, EMAIL_PASSWORD)
+                    smtp.send_message(msg)
+                logger.info("Log file sent via email.")
+            except Exception as e:
+                logger.error(f"Failed to send log via email: {str(e)}")
+    def send_csv_via_email(self, csvfile: str = None, subject: str = "Scraped Data CSV"):
+        """Send the scraped CSV file to your email address."""
+        load_dotenv()
+        EMAIL_ADDRESS = os.getenv("EMAIL_ADDRESS")
+        EMAIL_PASSWORD = os.getenv("EMAIL_PASSWORD")
+        EMAIL_TO = os.getenv("EMAIL_TO", EMAIL_ADDRESS)
+
+        if not EMAIL_ADDRESS or not EMAIL_PASSWORD:
+            logger.error("Email credentials not set in .env file.")
+            return
+
+        if not csvfile:
+            csvfile = self.config.get("output_file", "Scraped_data.csv")
+
+        msg = EmailMessage()
+        msg["Subject"] = subject
+        msg["From"] = EMAIL_ADDRESS
+        msg["To"] = EMAIL_TO
+        msg.set_content("Attached is the latest scraped data CSV file.")
+
+        try:
+            with open(csvfile, "rb") as f:
+                msg.add_attachment(f.read(), maintype="text", subtype="csv", filename=csvfile)
+            with smtplib.SMTP_SSL("smtp.gmail.com", 465) as smtp:
+                smtp.login(EMAIL_ADDRESS, EMAIL_PASSWORD)
+                smtp.send_message(msg)
+            logger.info("CSV file sent via email.")
+        except Exception as e:
+            logger.error(f"Failed to send CSV via email: {str(e)}")
     def run(self):
         """Run the complete workflow: scrape data, save to CSV, and import to database."""
         self.print_header()
@@ -631,8 +687,9 @@ class DateScraper:
             if self.driver:
                 self.driver.quit()
             print(f"⏱️ Execution time: {time.time() - start_time:.2f} seconds")
+            self.send_csv_via_email(self.config["output_file"])
+            self.send_log_via_email('data_scraper.log') 
 
-    
     def print_header(self):
         """Print program header."""
         print("\n" + "="*50)
