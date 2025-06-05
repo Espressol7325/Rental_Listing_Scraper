@@ -1,3 +1,10 @@
+name: Run Scraper Every 5 Hours
+
+on:
+  schedule:
+    - cron: '0 */5 * * *'  # Every 5 hours
+  workflow_dispatch:
+
 jobs:
   run-scraper:
     runs-on: ubuntu-latest
