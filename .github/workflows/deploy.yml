@@ -15,7 +15,6 @@ jobs:
 
       - name: Install Docker
         uses: docker/setup-buildx-action@v2
-        
       - name: Set up Node.js (required for Railway CLI)
         uses: actions/setup-node@v3
         with:
@@ -31,4 +30,4 @@ jobs:
       - name: Run Docker container on Railway
         run: |
           export RAILWAY_TOKEN=${{ secrets.RAILWAY_TOKEN }}
-          railway up
+          railway up --service Scraper_Grad_Project
