@@ -31,4 +31,4 @@ jobs:
       - name: Run Docker container on Railway
         run: |
           export RAILWAY_TOKEN=${{ secrets.RAILWAY_TOKEN }}
-          railway run --service Scraper_Grad_Project "docker compose run --rm fb-scraper"
+          railway up
