@@ -67,7 +67,7 @@ class FacebookGroupScraper:
 
     def print_header(self, config):
         print("\n" + "="*50)
-        print("👤 FACEBOOK GROUP SCRAPER & DATABASE IMPORTER 👤")
+        print(" FACEBOOK GROUP SCRAPER & DATABASE IMPORTER")
         print("="*50)
         print(f"• Groups to scrape: {len(config.get('groups', []))}")
         print(f"• Post limit per group: {config.get('max_posts', 0) if config.get('max_posts', 0) > 0 else 'No limit'}")

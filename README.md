@@ -47,18 +47,15 @@ The `config.json` file allows you to specify:
 ## 🚀 **How to Run**
 
 1.  Clone the repository:   
-git clone https://github.com/yourusername/phongtro-scraper.git  
+git clone https://github.com/Espressol7325/Scraper_Grad_Project.git
 cd phongtro-scraper  
 
 2.  Install dependencies:  
 pip install -r requirements.txt  
 
 3.  Launch the scraper:  
-Run scrapScript.ipynb in Jupyter Notebook.  
-Or convert it to a Python script to automate.  
-
+Run Scrapping_FB.py or Scrapping_Web.py depending on which method you want to get data; or 
 4.  Output will be saved as:  
-phongtro_data.json  
 phongtro_data.csv  
 
 ## 📊 **Use Cases**  
