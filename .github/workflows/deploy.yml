@@ -1,4 +1,4 @@
-name: Run Scraper Every 5 Hours
+name: Run FB Scraper every 5 hours
 
 on:
   schedule:
@@ -21,8 +21,8 @@ jobs:
       - name: Install Railway CLI
         run: npm install -g @railway/cli
 
-      - name: Log in to Railway
+      - name: Railway Login
         run: railway login --token ${{ secrets.RAILWAY_TOKEN }}
 
-      - name: Run Docker container on Railway
+      - name: Run Scraper Container
         run: railway run "docker compose run --rm fb-scraper"
