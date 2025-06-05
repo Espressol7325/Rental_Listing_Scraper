@@ -1,23 +1,31 @@
-name: Daily Scraper Deploy
+name: Run Scraper Every 5 Hours
 
 on:
   schedule:
-    - cron: '0 */5 * * *' #every 5 hours
-  workflow_dispatch:     # Manual trigger
+    - cron: '0 */5 * * *'  # Every 5 hours
+  workflow_dispatch:
 
 jobs:
-  deploy:
+  run-scraper:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout repo
+      - name: Checkout code
         uses: actions/checkout@v3
 
+      - name: Set up Node.js (required for Railway CLI)
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18'
+
       - name: Install Railway CLI
-        run: npm install -g railway
+        run: npm install -g @railway/cli
 
-      - name: Login Railway (using token)
-        run: railway login --token ${{ secrets.RAILWAY_TOKEN }}
+      - name: Set Railway project & environment
+        run: |
+          echo "RAILWAY_TOKEN=${{ secrets.RAILWAY_TOKEN }}" >> $GITHUB_ENV
 
-      - name: Deploy to Railway
-        run: railway up
+      - name: Run Docker container on Railway
+        run: |
+          export RAILWAY_TOKEN=${{ secrets.RAILWAY_TOKEN }}
+          railway run "docker compose run --rm fb-scraper"
