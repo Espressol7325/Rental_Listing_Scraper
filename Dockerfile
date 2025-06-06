@@ -1,5 +1,7 @@
-# Use lightweight Python base
 FROM python:3.10-slim
+
+# Force unbuffered logs
+ENV PYTHONUNBUFFERED=1
 
 # Install Chromium and dependencies
 RUN apt-get update && apt-get install -y \
@@ -13,14 +15,17 @@ RUN apt-get update && apt-get install -y \
 # Set working directory
 WORKDIR /app
 
-# Copy only requirements first for better Docker cache usage
+# Copy dependencies first for better cache
 COPY requirements.txt .
 
 # Install Python dependencies
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Copy the rest of your app code (optional, will be overwritten by volume in compose)
+# Copy entire project
 COPY . .
 
-# Default command (can be overridden by docker-compose)
-CMD ["python", "Scrapping_Web.py"]
+# Environment vars
+ENV CHROME_BIN=/usr/bin/chromium
+ENV CHROMEDRIVER_PATH=/usr/bin/chromedriver
+
+CMD ["python", "-u", "Scrapping_Web.py"]
