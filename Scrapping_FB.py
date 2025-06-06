@@ -5,7 +5,7 @@ from typing import Dict, List, Any, Optional, Tuple
 from datetime import datetime
 from dotenv import load_dotenv
 from selenium import webdriver
-from selenium.webdriver.edge.options import Options
+from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
@@ -48,7 +48,7 @@ class BrowserManager:
         options.add_argument("--disable-dev-shm-usage")
         options.add_argument("--disable-blink-features=AutomationControlled")
         options.add_argument(f"user-agent={BrowserManager.get_random_user_agent()}")
-        return webdriver.Edge(options=options)
+        return webdriver.Chrome(options=options)
 
 class FacebookGroupScraper:
     def __init__(self, headless, cookies_file, config_file):

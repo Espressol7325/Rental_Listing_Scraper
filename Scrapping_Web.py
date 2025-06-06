@@ -7,7 +7,7 @@ from typing import Dict, List, Any, Optional, Tuple
 from datetime import datetime
 from dotenv import load_dotenv
 from selenium import webdriver
-from selenium.webdriver.edge.options import Options
+from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
@@ -21,14 +21,14 @@ from selenium.common.exceptions import (
 DEFAULT_CONFIG = {
     "city": "da-nang",                      # City to scrape data from (URL path)
     "post_limit": 5,                        # Number of posts to scrape (0 = all)
-    "output_file": "Scraped_data.csv",      # Output filename
-    "headless": True,                       # Run browser in headless mode (True) or visible (False)
-    "random_delay": True,                   # Add random delay between operations (to avoid blocking)
+    "output_file": "phongtro_data.csv",      # Output filename
+    "headless": True,                       # Run browser in headless mode
+    "random_delay": True,                   # Add random delay between operations
     "min_delay": 1,                         # Minimum delay (seconds)
     "max_delay": 3,                         # Maximum delay (seconds)
-    "import_to_db": True,                   # Import data to database after scraping
-    "db_batch_size": 100,                   # Number of records to commit in each batch
-    "db_retry_limit": 3,                    # Number of retries for database operations
+    "import_to_db": True,                   # Import data to database
+    "db_batch_size": 100,                   # Records in each batch
+    "db_retry_limit": 3,                    # Retries for database operations
 }
 
 # Configure logging
@@ -36,12 +36,12 @@ logging.basicConfig(
     level=logging.INFO,
     format='%(asctime)s - %(levelname)s - %(message)s',
     filemode='w',
-    filename='data_scraper.log'
+    filename='phongtro_data.log'
 )
 logger = logging.getLogger(__name__)
 
 
-class DateScraper:
+class WebScraper:
     def __init__(self, config: Dict[str, Any] = None):
         """Initialize scraper with configuration."""
         self.config = config or DEFAULT_CONFIG
@@ -49,6 +49,18 @@ class DateScraper:
         self.patterns = self._load_config()
         self.db_connection = None
         self.db_cursor = None
+    
+    def print_header(self):
+        """Print program header."""
+        print("\n" + "="*50)
+        print("🏠 PHONGTRO DATA SCRAPER & DATABASE IMPORTER 🏠")
+        print("="*50)
+        print(f"• City: {self.config['city']}")
+        print(f"• Post limit: {self.config['post_limit'] if self.config['post_limit'] > 0 else 'No limit'}")
+        print(f"• Output file: {self.config['output_file']}")
+        print(f"• Headless mode: {'On' if self.config['headless'] else 'Off'}")
+        print(f"• Import to database: {'Yes' if self.config['import_to_db'] else 'No'}")
+        print("="*50 + "\n")
         
     def _load_config(self) -> Dict:
         """Load patterns and location data from config.json file."""
@@ -59,7 +71,7 @@ class DateScraper:
             logger.error(f"Error loading config.json: {str(e)}")
             return {}
     
-    def setup_driver(self) -> webdriver.Edge:
+    def setup_driver(self) -> webdriver.Chrome:
         """Set up and return WebDriver instance."""
         options = Options()
         if self.config["headless"]:
@@ -74,7 +86,7 @@ class DateScraper:
         # Add user-agent to avoid detection as bot
         options.add_argument("user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/90.0.4430.212 Safari/537.36")
         
-        self.driver = webdriver.Edge(options=options)
+        self.driver = webdriver.Chrome(options=options)
         return self.driver
 
     def random_delay(self) -> float:
@@ -147,11 +159,9 @@ class DateScraper:
             parts = date_time_str.split(', ')
             if len(parts) < 2:
                 return ""
-
             raw_datetime = parts[1] 
             dt = datetime.strptime(raw_datetime, "%H:%M %d/%m/%Y")
             return dt.strftime("%Y-%m-%d %H:%M:%S")
-
         except Exception as e:
             logger.error(f"Error extracting date and time: {str(e)}")
             return ""
@@ -222,6 +232,7 @@ class DateScraper:
         """Get amenities list from post."""
         if not self.patterns:
             return []
+        
         # Get amenity patterns from config
         amenity_patterns = self.patterns.get("amenity_patterns", {})
         detected_amenities = set()
@@ -233,6 +244,7 @@ class DateScraper:
             amenity_elements = self.driver.find_elements(
                 By.XPATH,
                 "//div[@class='text-body d-flex pt-1 pb-1' and not(contains(@style, '--bs-text-opacity: 0.1;'))]")
+            
             for element in amenity_elements:
                 text = element.text.strip()
                 if text:
@@ -244,6 +256,7 @@ class DateScraper:
                             break
                     if not matched:
                         detected_amenities.add(text) 
+                        
             # Get from content
             for label, pattern in amenity_patterns.items():
                 if re.search(pattern, content, re.IGNORECASE):
@@ -316,7 +329,7 @@ class DateScraper:
             "ward": ward
         }
 
-    def extract_info_area(self, content: str) -> Dict[str, Any]:
+    def extract_info(self, content: str) -> Dict[str, Any]:
         price_str = self.get_element_text_safely(
             "//span[@class='text-price fs-5 fw-bold']",
             self.get_element_text_safely("//span[@class='text-green fs-5 fw-bold']")
@@ -349,7 +362,7 @@ class DateScraper:
 
             metadata = self.extract_metadata()
             address_data = self.extract_address_and_location()
-            pricing = self.extract_info_area(content)
+            des_info = self.extract_info(content)
             contact = self.extract_contact()
 
             return {
@@ -359,9 +372,9 @@ class DateScraper:
                 "address": address_data["address"],
                 "ward": address_data["ward"],
                 "district": address_data["district"],
-                "area": pricing["area"],
-                "price": pricing["price"],
-                "amenities": pricing["amenities"],
+                "area": des_info["area"],
+                "price": des_info["price"],
+                "amenities": des_info["amenities"],
                 "contact": contact,
             }
 
@@ -370,26 +383,53 @@ class DateScraper:
             return None
 
     def save_to_csv(self, data: List[Dict], filename: str) -> bool:
-        """Save data to CSV file."""
+        """Save data to CSV file, skipping already existing posts."""
         try:
             if not data:
                 logger.warning("No data to save to CSV.")
                 return False
-                
+            
+            # Get existing post IDs if file exists
+            existing_post_ids = set()
+            if os.path.exists(filename):
+                try:
+                    with open(filename, 'r', encoding='utf-8', newline='') as csvfile:
+                        reader = csv.DictReader(csvfile)
+                        existing_post_ids = {row.get('postID') for row in reader if row.get('postID')}
+                    logger.info(f"Found {len(existing_post_ids)} existing posts in {filename}")
+                except Exception as e:
+                    logger.warning(f"Could not read existing CSV file: {str(e)}")
+            
+            # Filter out already existing posts
+            new_data = [post for post in data if post.get('postID') not in existing_post_ids]
+            
+            if not new_data:
+                logger.info("All posts already exist in CSV file. No new data to save.")
+                return True
+            
+            logger.info(f"Saving {len(new_data)} new posts (skipped {len(data) - len(new_data)} existing)")
+            
             # Get field names from the first item
             fieldnames = list(data[0].keys())
             
-            with open(filename, 'w', encoding='utf-8', newline='') as csvfile:
+            # Append to existing file or create new one
+            file_mode = 'a' if existing_post_ids else 'w'
+            write_header = not existing_post_ids
+            
+            with open(filename, file_mode, encoding='utf-8', newline='') as csvfile:
                 writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
-                writer.writeheader()
-                for row in data:
+                if write_header:
+                    writer.writeheader()
+                
+                for row in new_data:
                     row_copy = row.copy()
                     if isinstance(row_copy["amenities"], list):
                         row_copy["amenities"] = json.dumps(row_copy["amenities"], ensure_ascii=False)
-                    writer.writerow(row)
+                    writer.writerow(row_copy)
             
-            logger.info(f"Saved data to {filename}")
+            logger.info(f"Saved {len(new_data)} new posts to {filename}")
             return True
+            
         except Exception as e:
             logger.error(f"Error saving data to CSV file: {str(e)}")
             return False
@@ -592,6 +632,7 @@ class DateScraper:
             
         finally:
             self.close_db_connection()
+            
     def send_log_via_email(self, logfile: str, subject: str = "Scraper Log"):
             """Send the log file to your email address."""
             load_dotenv()
@@ -618,11 +659,12 @@ class DateScraper:
                 logger.info("Log file sent via email.")
             except Exception as e:
                 logger.error(f"Failed to send log via email: {str(e)}")
+                
     def send_csv_via_email(self, csvfile: str = None, subject: str = "Scraped Data CSV"):
         """Send the scraped CSV file to your email address."""
         load_dotenv()
-        EMAIL_ADDRESS = os.getenv("EMAIL_ADDRESS")
-        EMAIL_PASSWORD = os.getenv("EMAIL_PASSWORD")
+        EMAIL_ADDRESS = os.getenv("user_email")
+        EMAIL_PASSWORD = os.getenv("user_password")
         EMAIL_TO = os.getenv("EMAIL_TO", EMAIL_ADDRESS)
 
         if not EMAIL_ADDRESS or not EMAIL_PASSWORD:
@@ -630,7 +672,7 @@ class DateScraper:
             return
 
         if not csvfile:
-            csvfile = self.config.get("output_file", "Scraped_data.csv")
+            csvfile = self.config.get("output_file", "phongtro_data.csv")
 
         msg = EmailMessage()
         msg["Subject"] = subject
@@ -647,6 +689,7 @@ class DateScraper:
             logger.info("CSV file sent via email.")
         except Exception as e:
             logger.error(f"Failed to send CSV via email: {str(e)}")
+            
     def run(self):
         """Run the complete workflow: scrape data, save to CSV, and import to database."""
         self.print_header()
@@ -680,21 +723,8 @@ class DateScraper:
                 self.driver.quit()
             print(f"⏱️ Execution time: {time.time() - start_time:.2f} seconds")
             self.send_csv_via_email(self.config["output_file"])
-            self.send_log_via_email('data_scraper.log') 
-
-    def print_header(self):
-        """Print program header."""
-        print("\n" + "="*50)
-        print("🏠 PHONGTRO DATA SCRAPER & DATABASE IMPORTER 🏠")
-        print("="*50)
-        print(f"• City: {self.config['city']}")
-        print(f"• Post limit: {self.config['post_limit'] if self.config['post_limit'] > 0 else 'No limit'}")
-        print(f"• Output file: {self.config['output_file']}")
-        print(f"• Headless mode: {'On' if self.config['headless'] else 'Off'}")
-        print(f"• Import to database: {'Yes' if self.config['import_to_db'] else 'No'}")
-        print("="*50 + "\n")
-
+            self.send_log_via_email('phongtro_data.log') 
 
 if __name__ == "__main__":
-    scraper = DateScraper(DEFAULT_CONFIG)
+    scraper = WebScraper(DEFAULT_CONFIG)
     scraper.run()
