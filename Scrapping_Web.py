@@ -663,8 +663,8 @@ class WebScraper:
     def send_csv_via_email(self, csvfile: str = None, subject: str = "Scraped Data CSV"):
         """Send the scraped CSV file to your email address."""
         load_dotenv()
-        EMAIL_ADDRESS = os.getenv("user_email")
-        EMAIL_PASSWORD = os.getenv("user_password")
+        EMAIL_ADDRESS = os.getenv("EMAIL_ADDRESS")
+        EMAIL_PASSWORD = os.getenv("EMAIL_PASSWORD")
         EMAIL_TO = os.getenv("EMAIL_TO", EMAIL_ADDRESS)
 
         if not EMAIL_ADDRESS or not EMAIL_PASSWORD:
