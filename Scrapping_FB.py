@@ -16,7 +16,6 @@ from selenium.common.exceptions import (
 
 load_dotenv()
 
-
 class FacebookScraperLogger:
     def setup():
         logging.basicConfig(
@@ -236,7 +235,6 @@ class FacebookGroupScraper:
         if not content:
             return ""
 
-        # sorted_streets = sorted(self.streets, key=len, reverse=True)
         found_matches = []
         for street in self.streets:
             for match in re.finditer(r'\b(\d*\s*' + re.escape(street) + r'(?:\s+\d+)?)\b', content, re.IGNORECASE):
@@ -473,7 +471,7 @@ def main():
     headless = False
     cookies_file = "facebook_cookies.json"
     config_file = "config.json"
-    max_posts = 10
+    max_posts = 5
     csv_file_path = 'scrapData.csv'
     groups = ["https://www.facebook.com/groups/281184089051767"]
 
