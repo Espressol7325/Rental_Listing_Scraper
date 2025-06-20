@@ -1,6 +1,6 @@
 ## 🏠 **Real Estate Scraper**  
 
-This project is a robust web scraping tool designed to collect and process real estate rental listings. It uses Selenium to automate data extraction and export the results to JSON and CSV formats for further analysis.
+This project is a robust web scraping tool designed to collect and process real estate rental listings. It uses Selenium to automate data extraction and export the results to CSV and MySQL for further analysis.
 
 ## 📦 **Features**  
 
@@ -12,7 +12,7 @@ This project is a robust web scraping tool designed to collect and process real 
 
 -  🧠 Classifies listing types (room, apartment, house, etc.)
 
-- 🗂️ Outputs results to both .json and .csv
+- 🗂️ Outputs results to .csv
 
 - 🔧 Customizable via config.json
 
@@ -24,7 +24,7 @@ This project is a robust web scraping tool designed to collect and process real 
 
 - re (regular expressions)
 
--  json / csv
+-  csv
 
 ## 📁 **File Structure**   
 
@@ -47,7 +47,7 @@ The `config.json` file allows you to specify:
 ## 🚀 **How to Run**
 
 1.  Clone the repository:   
-git clone https://github.com/Espressol7325/Scraper_Grad_Project.git
+git clone https://github.com/Espressol7325/Rental_Listing_Scraper.git
 cd phongtro-scraper  
 
 2.  Install dependencies:  
