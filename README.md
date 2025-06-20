@@ -47,7 +47,7 @@ The `config.json` file allows you to specify:
 ## 🚀 **How to Run**
 
 1.  Clone the repository:   
-git clone https://github.com/Espressol7325/Scraper_Grad_Project.git
+git clone https://github.com/Espressol7325/Rental_Listing_Scraper.git
 cd phongtro-scraper  
 
 2.  Install dependencies:  
